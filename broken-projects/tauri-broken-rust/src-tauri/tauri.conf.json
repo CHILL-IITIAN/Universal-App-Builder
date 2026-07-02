@@ -1,0 +1,4 @@
+{
+  "package": { "productName": "BrokenRust", "version": "1.0.0" },
+  "tauri": { "bundle": { "active": true } }
+}

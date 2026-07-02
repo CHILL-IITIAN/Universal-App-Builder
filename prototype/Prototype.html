@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal App Builder</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --success: #3fb950;
+            --success-bg: rgba(63, 185, 80, 0.1);
+            --warning: #d29922;
+            --warning-bg: rgba(210, 153, 34, 0.1);
+            --error: #f85149;
+            --error-bg: rgba(248, 81, 73, 0.1);
+            --purple: #bc8cff;
+            --purple-bg: rgba(188, 140, 255, 0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f6f8fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #eaeef2;
+            --bg-card: #ffffff;
+            --border-color: #d0d7de;
+            --text-primary: #1f2328;
+            --text-secondary: #656d76;
+            --text-muted: #8c959f;
+            --accent: #0969da;
+            --accent-hover: #0550ae;
+            --accent-glow: rgba(9, 105, 218, 0.1);
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: var(--transition);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 8px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle:hover {
+            color: var(--text-primary);
+        }
+
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 10px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active {
+            background: var(--accent);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active::after {
+            left: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .topbar {
+            height: 56px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            font-size: 18px;
+        }
+
+        .topbar-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Page Content */
+        .page-content {
+            flex: 1;
+            padding: 32px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Home Screen */
+        .home-hero {
+            text-align: center;
+            padding: 40px 0 32px;
+        }
+
+        .home-hero h1 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .home-hero p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-glow), var(--purple-bg));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .drop-zone:hover::before, .drop-zone.drag-over::before {
+            opacity: 1;
+        }
+
+        .drop-zone-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .drop-zone h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .drop-zone p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .drop-zone-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            box-shadow: 0 4px 16px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #2ea043;
+            box-shadow: 0 4px 16px rgba(63, 185, 80, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+            border-color: var(--error);
+        }
+
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 15px;
+            border-radius: var(--radius-lg);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Recent Projects */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .recent-projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .project-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .project-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .project-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .project-icon.flutter { background: rgba(2, 135, 209, 0.15); color: #0287D1; }
+        .project-icon.electron { background: rgba(151, 212, 241, 0.15); color: #97D4F1; }
+        .project-icon.tauri { background: rgba(255, 199, 92, 0.15); color: #FFC75C; }
+        .project-icon.react-native { background: rgba(97, 218, 251, 0.15); color: #61DAFB; }
+
+        .project-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .project-framework {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .project-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .project-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Detection Screen */
+        .detection-header {
+            margin-bottom: 32px;
+        }
+
+        .detection-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .detection-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .project-info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .project-info-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .project-info-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .project-info-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .project-info-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Build Targets */
+        .build-targets-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .targets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .target-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .target-option:hover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .target-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .target-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .target-option.selected .target-checkbox {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .target-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .target-option.selected .target-checkbox::after {
+            opacity: 1;
+        }
+
+        .target-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .target-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .target-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .target-icon {
+            font-size: 20px;
+            margin-right: 4px;
+        }
+
+        /* Build Actions */
+        .build-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 16px;
+        }
+
+        /* Build Screen */
+        .build-progress-header {
+            margin-bottom: 24px;
+        }
+
+        .build-progress-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .progress-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .progress-step.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .progress-step.completed {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .progress-step.error {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .progress-bar-container {
+            margin-bottom: 16px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Console */
+        .console-container {
+            background: #0a0e14;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .console-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .console-title {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .console-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .console-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .console-body {
+            padding: 16px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            max-height: 400px;
+            overflow-y: auto;
+            min-height: 300px;
+        }
+
+        .console-line {
+            display: flex;
+            gap: 12px;
+            animation: consoleFade 0.2s ease;
+        }
+
+        @keyframes consoleFade {
+            from { opacity: 0; transform: translateX(-4px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .console-time {
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+
+        .console-text {
+            color: #c9d1d9;
+        }
+
+        .console-text.info { color: var(--accent); }
+        .console-text.success { color: var(--success); }
+        .console-text.warning { color: var(--warning); }
+        .console-text.error { color: var(--error); }
+        .console-text.command { color: var(--purple); }
+        .console-text.muted { color: var(--text-muted); }
+
+        /* Output Screen */
+        .output-header {
+            text-align: center;
+            padding: 40px 0 32px;
+        }
+
+        .output-success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success-bg);
+            border: 2px solid var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .output-error-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--error-bg);
+            border: 2px solid var(--error);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .output-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .output-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .output-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .output-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .output-card:hover {
+            border-color: var(--accent);
+        }
+
+        .output-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .output-filename {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .output-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .output-badge.success {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .output-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .output-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .output-detail-label {
+            color: var(--text-muted);
+        }
+
+        .output-detail-value {
+            font-weight: 600;
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* History Screen */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .history-status {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .history-status.success {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .history-status.failure {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Settings Screen */
+        .settings-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .setting-description {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .setting-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .setting-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Framework selection modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .modal-frameworks {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-framework-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-framework-option:hover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .modal-framework-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.detecting {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .status-badge.ready {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .status-badge.building {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            animation: slideInRight 0.3s ease;
+            min-width: 300px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-icon {
+            font-size: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .page-content {
+                padding: 20px;
+            }
+            .home-hero h1 {
+                font-size: 28px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a class="logo" href="#">
+                    <div class="logo-icon">⚡</div>
+                    <div>
+                        <div class="logo-text">Universal App Builder</div>
+                        <div class="logo-subtitle">v1.0.0</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <div class="nav-item active" data-screen="home" onclick="navigateTo('home')">
+                        <span class="nav-icon">🏠</span>
+                        Home
+                    </div>
+                    <div class="nav-item" data-screen="detection" onclick="navigateTo('detection')">
+                        <span class="nav-icon">🔍</span>
+                        Project Detection
+                    </div>
+                    <div class="nav-item" data-screen="build" onclick="navigateTo('build')">
+                        <span class="nav-icon">🔨</span>
+                        Build
+                    </div>
+                    <div class="nav-item" data-screen="output" onclick="navigateTo('output')">
+                        <span class="nav-icon">📦</span>
+                        Output
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Manage</div>
+                    <div class="nav-item" data-screen="history" onclick="navigateTo('history')">
+                        <span class="nav-icon">📋</span>
+                        Build History
+                        <span class="nav-badge">5</span>
+                    </div>
+                    <div class="nav-item" data-screen="settings" onclick="navigateTo('settings')">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <span>🌙 Dark Mode</span>
+                    <div class="toggle-switch active" id="themeSwitch"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="breadcrumb">
+                        <span>Universal App Builder</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current" id="breadcrumbCurrent">Home</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button class="topbar-btn" title="Notifications" onclick="showToast('No new notifications', '🔔')">🔔</button>
+                    <button class="topbar-btn" title="Help">❓</button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+
+                <!-- HOME SCREEN -->
+                <div class="screen active" id="screen-home">
+                    <div class="home-hero">
+                        <h1>Universal App Builder</h1>
+                        <p>Drop your project, detect the framework, and build executables — all from one place. No terminal required.</p>
+                    </div>
+
+                    <div class="drop-zone" id="dropZone" onclick="simulateProjectImport()">
+                        <div class="drop-zone-icon">📁</div>
+                        <h3>Drop your project here</h3>
+                        <p>Supports Flutter, Electron, Tauri, and React Native projects</p>
+                        <div class="drop-zone-actions">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); simulateProjectImport()">
+                                📂 Browse Folder
+                            </button>
+                            <button class="btn" onclick="event.stopPropagation(); simulateZipImport()">
+                                📦 Browse ZIP
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Projects</h3>
+                        <button class="btn btn-sm" onclick="navigateTo('history')">View All</button>
+                    </div>
+                    <div class="recent-projects">
+                        <div class="project-card" onclick="loadProject('Student Manager', 'flutter')">
+                            <div class="project-card-header">
+                                <div class="project-icon flutter">🦋</div>
+                                <div>
+                                    <div class="project-name">Student Manager</div>
+                                    <div class="project-framework">Flutter • v3.19.0</div>
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-meta-item">📅 2 hours ago</span>
+                                <span class="project-meta-item">✅ Success</span>
+                            </div>
+                        </div>
+                        <div class="project-card" onclick="loadProject('Task Tracker', 'electron')">
+                            <div class="project-card-header">
+                                <div class="project-icon electron">⚡</div>
+                                <div>
+                                    <div class="project-name">Task Tracker</div>
+                                    <div class="project-framework">Electron • v28.1.0</div>
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-meta-item">📅 Yesterday</span>
+                                <span class="project-meta-item">✅ Success</span>
+                            </div>
+                        </div>
+                        <div class="project-card" onclick="loadProject('SecureVault', 'tauri')">
+                            <div class="project-card-header">
+                                <div class="project-icon tauri">🦀</div>
+                                <div>
+                                    <div class="project-name">SecureVault</div>
+                                    <div class="project-framework">Tauri • v1.5.0</div>
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-meta-item">📅 3 days ago</span>
+                                <span class="project-meta-item">❌ Failed</span>
+                            </div>
+                        </div>
+                        <div class="project-card" onclick="loadProject('FitApp', 'react-native')">
+                            <div class="project-card-header">
+                                <div class="project-icon react-native">⚛️</div>
+                                <div>
+                                    <div class="project-name">FitApp</div>
+                                    <div class="project-framework">React Native • v0.73</div>
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-meta-item">📅 1 week ago</span>
+                                <span class="project-meta-item">✅ Success</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETECTION SCREEN -->
+                <div class="screen" id="screen-detection">
+                    <div class="detection-header">
+                        <h2>Project Detected</h2>
+                        <p>Your project has been analyzed and the framework has been identified.</p>
+                    </div>
+
+                    <div class="project-info-card">
+                        <div class="project-info-header">
+                            <div class="project-info-icon" id="detectedFrameworkIcon" style="background: rgba(2, 135, 209, 0.15); color: #0287D1;">🦋</div>
+                            <div>
+                                <div class="project-info-title" id="detectedProjectName">Student Manager</div>
+                                <div class="project-info-subtitle" id="detectedFrameworkName">Flutter Application</div>
+                            </div>
+                            <span class="status-badge ready" style="margin-left: auto;">✓ Detected</span>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Framework</span>
+                                <span class="info-value" id="infoFramework">Flutter</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Version</span>
+                                <span class="info-value" id="infoVersion">3.19.0</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Package Manager</span>
+                                <span class="info-value" id="infoPackageManager">pub (Dart)</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Project Location</span>
+                                <span class="info-value" id="infoLocation">~/projects/student_manager</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">SDK Status</span>
+                                <span class="info-value" style="color: var(--success);">✓ Installed</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Dependencies</span>
+                                <span class="info-value" id="infoDependencies">24 packages</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="build-targets-card">
+                        <h3 class="section-title">Select Build Targets</h3>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">Choose which platforms to build for.</p>
+                        <div class="targets-grid" id="targetsGrid">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn" onclick="navigateTo('home')">← Back</button>
+                        <button class="btn btn-primary btn-lg" onclick="startBuild()">
+                            🔨 Start Build
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BUILD SCREEN -->
+                <div class="screen" id="screen-build">
+                    <div class="build-progress-header">
+                        <h2>Building Project</h2>
+                        <p id="buildSubtitle">Compiling Student Manager for Windows...</p>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-steps" id="progressSteps">
+                            <div class="progress-step completed" id="step-validate">
+                                <span>✓</span> Validate
+                            </div>
+                            <div class="progress-step active" id="step-deps">
+                                <span class="spinner"></span> Dependencies
+                            </div>
+                            <div class="progress-step" id="step-compile">
+                                <span>3</span> Compile
+                            </div>
+                            <div class="progress-step" id="step-package">
+                                <span>4</span> Package
+                            </div>
+                            <div class="progress-step" id="step-output">
+                                <span>5</span> Output
+                            </div>
+                        </div>
+
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progressBar" style="width: 25%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progressStatus">Installing dependencies...</span>
+                                <span class="progress-percentage" id="progressPercent">25%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="console-container">
+                        <div class="console-header">
+                            <div class="console-title">
+                                <div class="console-dot"></div>
+                                Build Console
+                            </div>
+                            <div class="console-actions">
+                                <button class="btn btn-sm" onclick="clearConsole()">Clear</button>
+                                <button class="btn btn-sm" onclick="exportLog()">📄 Export Log</button>
+                            </div>
+                        </div>
+                        <div class="console-body" id="consoleBody">
+                            <!-- Console lines added dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn btn-danger" id="cancelBuildBtn" onclick="cancelBuild()">
+                            ✕ Cancel Build
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OUTPUT SCREEN -->
+                <div class="screen" id="screen-output">
+                    <div class="output-header" id="outputHeader">
+                        <div class="output-success-icon">✓</div>
+                        <h2>Build Successful!</h2>
+                        <p>Your application has been built and is ready to distribute.</p>
+                    </div>
+
+                    <div class="output-cards" id="outputCards">
+                        <!-- Filled dynamically -->
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn" onclick="navigateTo('home')">🏠 Home</button>
+                        <button class="btn" onclick="navigateTo('history')">📋 View History</button>
+                        <button class="btn btn-primary" onclick="startNewBuild()">🔨 New Build</button>
+                    </div>
+                </div>
+
+                <!-- HISTORY SCREEN -->
+                <div class="screen" id="screen-history">
+                    <div class="detection-header">
+                        <h2>Build History</h2>
+                        <p>View and manage your previous builds.</p>
+                    </div>
+
+                    <div class="history-list" id="historyList">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+
+                <!-- SETTINGS SCREEN -->
+                <div class="screen" id="screen-settings">
+                    <div class="detection-header">
+                        <h2>Settings</h2>
+                        <p>Configure Universal App Builder preferences.</p>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎨 Appearance</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Theme</div>
+                                <div class="setting-description">Choose between dark and light mode</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select" onchange="setTheme(this.value)">
+                                    <option value="dark" selected>Dark</option>
+                                    <option value="light">Light</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Language</div>
+                                <div class="setting-description">Interface language</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select">
+                                    <option>English</option>
+                                    <option>Spanish</option>
+                                    <option>French</option>
+                                    <option>German</option>
+                                    <option>Japanese</option>
+                                    <option>Hindi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📂 Build</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Default Build Folder</div>
+                                <div class="setting-description">Where compiled outputs are saved</div>
+                            </div>
+                            <div class="setting-control">
+                                <input class="setting-input" type="text" value="~/Documents/UBBuilds" />
+                                <button class="btn btn-sm">Browse</button>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Parallel Builds</div>
+                                <div class="setting-description">Number of simultaneous build processes</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Preferred Package Manager</div>
+                                <div class="setting-description">Default package manager for Node.js projects</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select">
+                                    <option>Auto-detect</option>
+                                    <option>npm</option>
+                                    <option>yarn</option>
+                                    <option>pnpm</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Auto-clean Temporary Files</div>
+                                <div class="setting-description">Remove temp files after build completion</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔔 Notifications</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Build Notifications</div>
+                                <div class="setting-description">Get notified when builds complete or fail</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Sound Effects</div>
+                                <div class="setting-description">Play sounds for build events</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔧 SDK Paths</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Flutter SDK</div>
+                                <div class="setting-description">Path to Flutter SDK installation</div>
+                            </div>
+                            <div class="setting-control">
+                                <input class="setting-input" type="text" value="/usr/local/flutter" />
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Android SDK</div>
+                                <div class="setting-description">Path to Android SDK</div>
+                            </div>
+                            <div class="setting-control">
+                                <input class="setting-input" type="text" value="~/Android/Sdk" />
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Rust/Cargo</div>
+                                <div class="setting-description">Path to Rust toolchain</div>
+                            </div>
+                            <div class="setting-control">
+                                <input class="setting-input" type="text" value="~/.cargo" />
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Node.js</div>
+                                <div class="setting-description">Path to Node.js installation</div>
+                            </div>
+                            <div class="setting-control">
+                                <input class="setting-input" type="text" value="/usr/local/bin/node" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Framework Selection Modal -->
+    <div class="modal-overlay" id="frameworkModal">
+        <div class="modal">
+            <h3>Multiple Frameworks Detected</h3>
+            <p>Your project appears to contain artifacts from multiple frameworks. Please select the primary framework to build with:</p>
+            <div class="modal-frameworks" id="modalFrameworks">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="build-actions">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmFramework()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ===================== STATE =====================
+        let currentScreen = 'home';
+        let currentProject = null;
+        let buildInProgress = false;
+        let buildCancelled = false;
+
+        const frameworks = {
+            flutter: {
+                name: 'Flutter',
+                icon: '🦋',
+                iconClass: 'flutter',
+                version: '3.19.0',
+                packageManager: 'pub (Dart)',
+                location: '~/projects/student_manager',
+                dependencies: '24 packages',
+                targets: [
+                    { id: 'windows', name: 'Windows', desc: '.exe installer', icon: '🪟' },
+                    { id: 'android', name: 'Android', desc: '.apk file', icon: '🤖' },
+                    { id: 'linux', name: 'Linux', desc: '.AppImage', icon: '🐧' },
+                    { id: 'macos', name: 'macOS', desc: '.dmg package', icon: '🍎' },
+                    { id: 'web', name: 'Web', desc: 'Static site', icon: '🌐' }
+                ]
+            },
+            electron: {
+                name: 'Electron',
+                icon: '⚡',
+                iconClass: 'electron',
+                version: '28.1.0',
+                packageManager: 'npm',
+                location: '~/projects/task_tracker',
+                dependencies: '156 packages',
+                targets: [
+                    { id: 'windows', name: 'Windows', desc: '.exe installer', icon: '🪟' },
+                    { id: 'linux', name: 'Linux', desc: '.AppImage', icon: '🐧' },
+                    { id: 'macos', name: 'macOS', desc: '.dmg package', icon: '🍎' }
+                ]
+            },
+            tauri: {
+                name: 'Tauri',
+                icon: '🦀',
+                iconClass: 'tauri',
+                version: '1.5.0',
+                packageManager: 'cargo + npm',
+                location: '~/projects/secure_vault',
+                dependencies: '48 crates + 32 npm',
+                targets: [
+                    { id: 'windows', name: 'Windows', desc: '.exe / .msi', icon: '🪟' },
+                    { id: 'android', name: 'Android', desc: '.apk file', icon: '🤖' },
+                    { id: 'linux', name: 'Linux', desc: '.AppImage / .deb', icon: '🐧' },
+                    { id: 'macos', name: 'macOS', desc: '.dmg package', icon: '🍎' }
+                ]
+            },
+            'react-native': {
+                name: 'React Native',
+                icon: '⚛️',
+                iconClass: 'react-native',
+                version: '0.73.0',
+                packageManager: 'npm / yarn',
+                location: '~/projects/fit_app',
+                dependencies: '203 packages',
+                targets: [
+                    { id: 'android', name: 'Android', desc: '.apk / .aab', icon: '🤖' },
+                    { id: 'ios', name: 'iOS', desc: '.ipa (requires macOS)', icon: '📱' }
+                ]
+            }
+        };
+
+        const buildHistory = [
+            { project: 'Student Manager', framework: 'flutter', target: 'Windows', success: true, time: '2m 43s', size: '148 MB', date: '2026-07-02 14:30', output: '~/UBBuilds/StudentManager.exe' },
+            { project: 'Task Tracker', framework: 'electron', target: 'Windows', success: true, time: '4m 12s', size: '92 MB', date: '2026-07-01 09:15', output: '~/UBBuilds/TaskTracker.exe' },
+            { project: 'SecureVault', framework: 'tauri', target: 'Linux', success: false, time: '1m 08s', size: '-', date: '2026-06-29 16:45', output: '-' },
+            { project: 'FitApp', framework: 'react-native', target: 'Android', success: true, time: '6m 22s', size: '67 MB', date: '2026-06-25 11:20', output: '~/UBBuilds/FitApp.apk' },
+            { project: 'Student Manager', framework: 'flutter', target: 'Android', success: true, time: '3m 55s', size: '52 MB', date: '2026-06-20 08:00', output: '~/UBBuilds/StudentManager.apk' }
+        ];
+
+        let selectedTargets = [];
+
+        // ===================== NAVIGATION =====================
+        function navigateTo(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            document.getElementById(`screen-${screen}`).classList.add('active');
+            const navItem = document.querySelector(`.nav-item[data-screen="${screen}"]`);
+            if (navItem) navItem.classList.add('active');
+
+            document.getElementById('breadcrumbCurrent').textContent = screen.charAt(0).toUpperCase() + screen.slice(1);
+            currentScreen = screen;
+
+            if (screen === 'history') renderHistory();
+        }
+
+        // ===================== THEME =====================
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const sw = document.getElementById('themeSwitch');
+            if (theme === 'dark') {
+                sw.classList.add('active');
+            } else {
+                sw.classList.remove('active');
+            }
+            // Update select if on settings page
+            const select = document.querySelector('.settings-section select');
+            if (select) select.value = theme;
+        }
+
+        // ===================== PROJECT IMPORT =====================
+        function simulateProjectImport() {
+            // Simulate detecting a Flutter project
+            loadProject('Student Manager', 'flutter');
+        }
+
+        function simulateZipImport() {
+            showToast('Extracting ZIP file...', '📦');
+            setTimeout(() => {
+                showToast('ZIP extracted successfully', '✅');
+                // Show multi-framework modal sometimes
+                showFrameworkModal();
+            }, 1500);
+        }
+
+        function loadProject(name, frameworkKey) {
+            const fw = frameworks[frameworkKey];
+            currentProject = { name, framework: frameworkKey };
+
+            // Update detection screen
+            document.getElementById('detectedProjectName').textContent = name;
+            document.getElementById('detectedFrameworkName').textContent = `${fw.name} Application`;
+            document.getElementById('infoFramework').textContent = fw.name;
+            document.getElementById('infoVersion').textContent = fw.version;
+            document.getElementById('infoPackageManager').textContent = fw.packageManager;
+            document.getElementById('infoLocation').textContent = fw.location;
+            document.getElementById('infoDependencies').textContent = fw.dependencies;
+
+            const icon = document.getElementById('detectedFrameworkIcon');
+            icon.textContent = fw.icon;
+            icon.className = `project-info-icon project-icon ${fw.iconClass}`;
+
+            // Render targets
+            renderTargets(fw.targets);
+
+            selectedTargets = [];
+            navigateTo('detection');
+            showToast(`Detected: ${fw.name} project`, '🔍');
+        }
+
+        function renderTargets(targets) {
+            const grid = document.getElementById('targetsGrid');
+            grid.innerHTML = '';
+            targets.forEach(target => {
+                const div = document.createElement('div');
+                div.className = 'target-option';
+                div.setAttribute('data-target', target.id);
+                div.onclick = () => toggleTarget(div, target.id);
+                div.innerHTML = `
+                    <div class="target-checkbox"></div>
+                    <span class="target-icon">${target.icon}</span>
+                    <div class="target-info">
+                        <span class="target-name">${target.name}</span>
+                        <span class="target-desc">${target.desc}</span>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function toggleTarget(el, targetId) {
+            el.classList.toggle('selected');
+            if (el.classList.contains('selected')) {
+                selectedTargets.push(targetId);
+            } else {
+                selectedTargets = selectedTargets.filter(t => t !== targetId);
+            }
+        }
+
+        // ===================== FRAMEWORK MODAL =====================
+        function showFrameworkModal() {
+            const modal = document.getElementById('frameworkModal');
+            const container = document.getElementById('modalFrameworks');
+            container.innerHTML = '';
+
+            const detectedFrameworks = ['flutter', 'electron', 'tauri'];
+            detectedFrameworks.forEach(key => {
+                const fw = frameworks[key];
+                const div = document.createElement('div');
+                div.className = 'modal-framework-option';
+                div.onclick = () => {
+                    container.querySelectorAll('.modal-framework-option').forEach(o => o.classList.remove('selected'));
+                    div.classList.add('selected');
+                    div.setAttribute('data-framework', key);
+                };
+                div.innerHTML = `
+                    <span style="font-size: 24px;">${fw.icon}</span>
+                    <div>
+                        <div style="font-weight: 600;">${fw.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">v${fw.version}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('frameworkModal').classList.remove('active');
+        }
+
+        function confirmFramework() {
+            const selected = document.querySelector('.modal-framework-option.selected');
+            if (selected) {
+                const key = selected.getAttribute('data-framework');
+                closeModal();
+                loadProject('Imported Project', key);
+            }
+        }
+
+        // ===================== BUILD =====================
+        function startBuild() {
+            if (selectedTargets.length === 0) {
+                showToast('Please select at least one build target', '⚠️');
+                return;
+            }
+
+            buildCancelled = false;
+            buildInProgress = true;
+            navigateTo('build');
+
+            const fw = frameworks[currentProject.framework];
+            document.getElementById('buildSubtitle').textContent = 
+                `Compiling ${currentProject.name} for ${selectedTargets.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')}...`;
+
+            // Reset steps
+            resetBuildSteps();
+            clearConsole();
+
+            // Start simulated build
+            runBuildSimulation(fw);
+        }
+
+        function resetBuildSteps() {
+            const steps = ['step-validate', 'step-deps', 'step-compile', 'step-package', 'step-output'];
+            steps.forEach(id => {
+                const el = document.getElementById(id);
+                el.className = 'progress-step';
+            });
+            document.getElementById('step-validate').className = 'progress-step';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressPercent').textContent = '0%';
+            document.getElementById('cancelBuildBtn').style.display = '';
+        }
+
+        function clearConsole() {
+            document.getElementById('consoleBody').innerHTML = '';
+        }
+
+        function addConsoleLine(text, type = '') {
+            const body = document.getElementById('consoleBody');
+            const now = new Date();
+            const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.innerHTML = `
+                <span class="console-time">${time}</span>
+                <span class="console-text ${type}">${text}</span>
+            `;
+            body.appendChild(line);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        async function runBuildSimulation(fw) {
+            const steps = [
+                {
+                    name: 'validate',
+                    elementId: 'step-validate',
+                    logs: [
+                        { text: `▶ Validating project structure...`, type: 'info' },
+                        { text: `$ Checking for ${fw.name} configuration files...`, type: 'command' },
+                        { text: `✓ Project structure valid`, type: 'success' },
+                        { text: `✓ All required files present`, type: 'success' },
+                    ],
+                    progress: 10
+                },
+                {
+                    name: 'deps',
+                    elementId: 'step-deps',
+                    logs: [
+                        { text: `▶ Resolving dependencies...`, type: 'info' },
+                        { text: `$ ${fw.packageManager === 'npm' ? 'npm install' : fw.packageManager === 'pub (Dart)' ? 'flutter pub get' : 'cargo build && npm install'}`, type: 'command' },
+                        { text: `Resolving dependencies...`, type: 'muted' },
+                        { text: `+ flutter 3.19.0`, type: '' },
+                        { text: `+ material 1.11.0`, type: '' },
+                        { text: `+ cupertino_icons 1.0.6`, type: '' },
+                        { text: `Got dependencies! (24 packages)`, type: 'success' },
+                    ],
+                    progress: 30
+                },
+                {
+                    name: 'compile',
+                    elementId: 'step-compile',
+                    logs: [
+                        { text: `▶ Starting ${fw.name} build...`, type: 'info' },
+                        { text: `$ flutter build windows --release`, type: 'command' },
+                        { text: `Compiling Dart to native code...`, type: 'muted' },
+                        { text: `Compiling lib/main.dart...`, type: '' },
+                        { text: `Compiling lib/screens/home.dart...`, type: '' },
+                        { text: `Compiling lib/services/api.dart...`, type: '' },
+                        { text: `Compiling lib/models/student.dart...`, type: '' },
+                        { text: `Running Gradle task 'assembleRelease'...`, type: 'muted' },
+                        { text: `Warning: Unused import 'dart:async' in lib/utils.dart`, type: 'warning' },
+                        { text: `Compilation complete (47 files, 0 errors, 1 warning)`, type: 'success' },
+                    ],
+                    progress: 70
+                },
+                {
+                    name: 'package',
+                    elementId: 'step-package',
+                    logs: [
+                        { text: `▶ Packaging application...`, type: 'info' },
+                        { text: `$ Creating executable bundle...`, type: 'command' },
+                        { text: `Bundling assets...`, type: '' },
+                        { text: `Compressing resources...`, type: '' },
+                        { text: `Generating installer...`, type: '' },
+                        { text: `✓ Package created successfully`, type: 'success' },
+                    ],
+                    progress: 90
+                },
+                {
+                    name: 'output',
+                    elementId: 'step-output',
+                    logs: [
+                        { text: `▶ Collecting build output...`, type: 'info' },
+                        { text: `Output: ~/UBBuilds/StudentManager.exe (148 MB)`, type: '' },
+                        { text: ``, type: '' },
+                        { text: `═══════════════════════════════════════`, type: 'success' },
+                        { text: `  BUILD SUCCESSFUL`, type: 'success' },
+                        { text: `  Duration: 2m 43s`, type: 'success' },
+                        { text: `═══════════════════════════════════════`, type: 'success' },
+                    ],
+                    progress: 100
+                }
+            ];
+
+            for (let i = 0; i < steps.length; i++) {
+                if (buildCancelled) return;
+
+                const step = steps[i];
+                const el = document.getElementById(step.elementId);
+                el.className = 'progress-step active';
+                el.querySelector('span').innerHTML = '<div class="spinner" style="width:12px;height:12px;border-width:1.5px;"></div>';
+
+                document.getElementById('progressStatus').textContent = getStepLabel(step.name);
+
+                for (let j = 0; j < step.logs.length; j++) {
+                    if (buildCancelled) return;
+                    await delay(400 + Math.random() * 600);
+                    addConsoleLine(step.logs[j].text, step.logs[j].type);
+                    
+                    const progressIncrement = (step.progress - (i > 0 ? steps[i-1].progress : 0)) / step.logs.length;
+                    const currentProgress = (i > 0 ? steps[i-1].progress : 0) + progressIncrement * (j + 1);
+                    document.getElementById('progressBar').style.width = `${Math.min(currentProgress, step.progress)}%`;
+                    document.getElementById('progressPercent').textContent = `${Math.round(Math.min(currentProgress, step.progress))}%`;
+                }
+
+                el.className = 'progress-step completed';
+                el.querySelector('span').textContent = '✓';
+            }
+
+            if (!buildCancelled) {
+                buildInProgress = false;
+                document.getElementById('cancelBuildBtn').style.display = 'none';
+                await delay(1000);
+                showBuildOutput();
+            }
+        }
+
+        function getStepLabel(step) {
+            const labels = {
+                validate: 'Validating project...',
+                deps: 'Installing dependencies...',
+                compile: 'Compiling application...',
+                package: 'Packaging application...',
+                output: 'Collecting output...'
+            };
+            return labels[step] || 'Processing...';
+        }
+
+        function cancelBuild() {
+            buildCancelled = true;
+            buildInProgress = false;
+            addConsoleLine('', '');
+            addConsoleLine('✕ Build cancelled by user', 'error');
+            document.getElementById('progressStatus').textContent = 'Build cancelled';
+            document.getElementById('cancelBuildBtn').style.display = 'none';
+            showToast('Build cancelled', '⚠️');
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ===================== OUTPUT =====================
+        function showBuildOutput() {
+            navigateTo('output');
+
+            const outputCards = document.getElementById('outputCards');
+            outputCards.innerHTML = '';
+
+            selectedTargets.forEach(target => {
+                const ext = target === 'windows' ? '.exe' : target === 'android' ? '.apk' : target === 'linux' ? '.AppImage' : target === 'macos' ? '.dmg' : target === 'web' ? '.zip' : '.ipa';
+                const sizes = { windows: '148 MB', android: '52 MB', linux: '134 MB', macos: '156 MB', web: '24 MB', ios: '48 MB' };
+                const times = { windows: '2m 43s', android: '3m 12s', linux: '2m 58s', macos: '3m 34s', web: '45s', ios: '4m 10s' };
+
+                const card = document.createElement('div');
+                card.className = 'output-card';
+                card.innerHTML = `
+                    <div class="output-card-header">
+                        <span class="output-filename">📄 ${currentProject.name.replace(/\s/g, '')}${ext}</span>
+                        <span class="output-badge success">✓ Built</span>
+                    </div>
+                    <div class="output-details">
+                        <div class="output-detail">
+                            <span class="output-detail-label">Platform</span>
+                            <span class="output-detail-value">${target.charAt(0).toUpperCase() + target.slice(1)}</span>
+                        </div>
+                        <div class="output-detail">
+                            <span class="output-detail-label">File Size</span>
+                            <span class="output-detail-value">${sizes[target]}</span>
+                        </div>
+                        <div class="output-detail">
+                            <span class="output-detail-label">Build Duration</span>
+                            <span class="output-detail-value">${times[target]}</span>
+                        </div>
+                        <div class="output-detail">
+                            <span class="output-detail-label">Output Path</span>
+                            <span class="output-detail-value" style="font-size: 12px;">~/UBBuilds/${currentProject.name.replace(/\s/g, '')}${ext}</span>
+                        </div>
+                    </div>
+                    <div class="output-actions">
+                        <button class="btn btn-sm" onclick="showToast('Opening folder...', '📂')">📂 Open Folder</button>
+                        <button class="btn btn-sm" onclick="showToast('Opening file...', '📄')">📄 Open File</button>
+                        <button class="btn btn-sm" onclick="copyPath('${currentProject.name.replace(/\s/g, '')}${ext}')">📋 Copy Path</button>
+                    </div>
+                `;
+                outputCards.appendChild(card);
+            });
+
+            showToast('Build completed successfully!', '✅');
+        }
+
+        function copyPath(filename) {
+            showToast(`Path copied: ~/UBBuilds/${filename}`, '📋');
+        }
+
+        function startNewBuild() {
+            navigateTo('home');
+        }
+
+        // ===================== HISTORY =====================
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+
+            buildHistory.forEach(item => {
+                const fw = frameworks[item.framework];
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-status ${item.success ? 'success' : 'failure'}">
+                        ${item.success ? '✓' : '✕'}
+                    </div>
+                    <div class="history-info">
+                        <div class="history-title">${item.project}</div>
+                        <div class="history-meta">
+                            <span>${fw.icon} ${fw.name}</span>
+                            <span>🎯 ${item.target}</span>
+                            <span>⏱️ ${item.time}</span>
+                            <span>📅 ${item.date}</span>
+                            ${item.size !== '-' ? `<span>💾 ${item.size}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="history-actions">
+                        ${item.success ? `<button class="btn btn-sm" onclick="event.stopPropagation(); showToast('Opening output folder...', '📂')">📂 Output</button>` : ''}
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); rebuildFromHistory('${item.project}', '${item.framework}')">🔨 Rebuild</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function rebuildFromHistory(name, framework) {
+            loadProject(name, framework);
+            showToast(`Loaded ${name} for rebuilding`, '🔨');
+        }
+
+        // ===================== LOG EXPORT =====================
+        function exportLog() {
+            const consoleBody = document.getElementById('consoleBody');
+            const lines = consoleBody.querySelectorAll('.console-line');
+            let logText = 'Universal App Builder - Build Log\n';
+            logText += '================================\n';
+            logText += `Date: ${new Date().toLocaleString()}\n`;
+            logText += `Project: ${currentProject?.name || 'N/A'}\n\n`;
+
+            lines.forEach(line => {
+                const time = line.querySelector('.console-time')?.textContent || '';
+                const text = line.querySelector('.console-text')?.textContent || '';
+                logText += `[${time}] ${text}\n`;
+            });
+
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `build-log-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Log exported successfully', '📄');
+        }
+
+        // ===================== TOASTS =====================
+        function showToast(message, icon = 'ℹ️') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <span class="toast-icon">${icon}</span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ===================== DRAG & DROP =====================
+        const dropZone = document.getElementById('dropZone');
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            simulateProjectImport();
+        });
+
+        // ===================== INIT =====================
+        // Welcome toast
+        setTimeout(() => {
+            showToast('Welcome to Universal App Builder!', '👋');
+        }, 500);
+    </script>
+</body>
+</html>

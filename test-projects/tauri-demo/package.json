@@ -1,0 +1,17 @@
+{
+  "name": "secure-vault",
+  "version": "1.5.0",
+  "description": "A secure password vault built with Tauri and Rust",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.3"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.9",
+    "vite": "^5.0.0"
+  }
+}

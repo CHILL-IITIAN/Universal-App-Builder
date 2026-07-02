@@ -1,0 +1,9 @@
+name: missing_tools_app
+description: Flutter app that requires tools not installed
+version: 1.0.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_rust_bridge: ^2.0.0
+  ffi: ^2.1.0

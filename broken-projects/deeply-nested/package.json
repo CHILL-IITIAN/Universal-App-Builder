@@ -1,0 +1,6 @@
+{
+  "name": "deeply-nested",
+  "version": "1.0.0",
+  "main": "a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/deep.js",
+  "devDependencies": { "electron": "^28.0.0" }
+}

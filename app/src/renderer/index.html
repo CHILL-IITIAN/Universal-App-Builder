@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <title>Universal App Builder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <div>
+                        <div class="logo-text">Universal App Builder</div>
+                        <div class="logo-subtitle" id="appVersion">v1.0.0</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <div class="nav-item active" data-screen="home">
+                        <span class="nav-icon">🏠</span>
+                        Home
+                    </div>
+                    <div class="nav-item" data-screen="detection">
+                        <span class="nav-icon">🔍</span>
+                        Detection
+                    </div>
+                    <div class="nav-item" data-screen="build">
+                        <span class="nav-icon">🔨</span>
+                        Build
+                    </div>
+                    <div class="nav-item" data-screen="output">
+                        <span class="nav-icon">📦</span>
+                        Output
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Manage</div>
+                    <div class="nav-item" data-screen="history">
+                        <span class="nav-icon">📋</span>
+                        Build History
+                        <span class="nav-badge" id="historyBadge">0</span>
+                    </div>
+                    <div class="nav-item" data-screen="settings">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="theme-toggle" id="themeToggle">
+                    <span>🌙 Dark Mode</span>
+                    <div class="toggle-switch active" id="themeSwitch"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Title Bar Spacer (for macOS traffic lights) -->
+            <div class="titlebar-spacer"></div>
+
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="breadcrumb">
+                        <span>Universal App Builder</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current" id="breadcrumbCurrent">Home</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button class="topbar-btn" id="btnNotifications" title="Notifications">🔔</button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+
+                <!-- HOME SCREEN -->
+                <div class="screen active" id="screen-home">
+                    <div class="home-hero">
+                        <h1>Universal App Builder</h1>
+                        <p>Drop your project folder or ZIP, detect the framework, and build executables — all from one place.</p>
+                    </div>
+
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">📁</div>
+                        <h3>Drop your project here</h3>
+                        <p>Supports Flutter, Electron, Tauri, and React Native projects</p>
+                        <div class="drop-zone-actions">
+                            <button class="btn btn-primary" id="btnBrowseFolder">📂 Browse Folder</button>
+                            <button class="btn" id="btnBrowseZip">📦 Browse ZIP</button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Projects</h3>
+                        <button class="btn btn-sm" id="btnViewAllHistory">View All</button>
+                    </div>
+                    <div class="recent-projects" id="recentProjects">
+                        <div class="empty-state" id="emptyRecentProjects">
+                            <p>No recent projects yet. Import a project to get started!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETECTION SCREEN -->
+                <div class="screen" id="screen-detection">
+                    <div class="detection-header">
+                        <h2>Project Detected</h2>
+                        <p id="detectionSubtitle">Your project has been analyzed.</p>
+                    </div>
+
+                    <!-- Multiple frameworks detected -->
+                    <div id="multiFrameworkNotice" class="alert alert-warning" style="display:none;">
+                        <span>⚠️</span>
+                        <div>
+                            <strong>Multiple frameworks detected.</strong>
+                            <p>Please select the primary framework to build with.</p>
+                        </div>
+                    </div>
+
+                    <div class="project-info-card" id="projectInfoCard">
+                        <div class="project-info-header">
+                            <div class="project-info-icon" id="detectedIcon">🔍</div>
+                            <div>
+                                <div class="project-info-title" id="detectedName">—</div>
+                                <div class="project-info-subtitle" id="detectedType">—</div>
+                            </div>
+                            <span class="status-badge ready" id="detectionBadge">✓ Detected</span>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Framework</span>
+                                <span class="info-value" id="infoFramework">—</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Version</span>
+                                <span class="info-value" id="infoVersion">—</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Package Manager</span>
+                                <span class="info-value" id="infoPackageManager">—</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Project Location</span>
+                                <span class="info-value info-value-path" id="infoLocation" title="">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Framework selector (when multiple detected) -->
+                    <div id="frameworkSelector" class="build-targets-card" style="display:none;">
+                        <h3 class="section-title">Select Framework</h3>
+                        <div class="targets-grid" id="frameworkGrid"></div>
+                    </div>
+
+                    <div class="build-targets-card" id="buildTargetsCard">
+                        <h3 class="section-title">Select Build Targets</h3>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">Choose which platforms to build for.</p>
+                        <div class="targets-grid" id="targetsGrid"></div>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn" id="btnBackToHome">← Back</button>
+                        <button class="btn btn-primary btn-lg" id="btnStartBuild">🔨 Start Build</button>
+                    </div>
+                </div>
+
+                <!-- BUILD SCREEN -->
+                <div class="screen" id="screen-build">
+                    <div class="build-progress-header">
+                        <h2>Building Project</h2>
+                        <p id="buildSubtitle">Preparing build...</p>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-steps" id="progressSteps">
+                            <div class="progress-step" data-step="validate"><span>1</span> Validate</div>
+                            <div class="progress-step" data-step="deps"><span>2</span> Dependencies</div>
+                            <div class="progress-step" data-step="compile"><span>3</span> Compile</div>
+                            <div class="progress-step" data-step="package"><span>4</span> Package</div>
+                            <div class="progress-step" data-step="output"><span>5</span> Output</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progressStatus">Initializing...</span>
+                                <span class="progress-percentage" id="progressPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="console-container">
+                        <div class="console-header">
+                            <div class="console-title">
+                                <div class="console-dot" id="consoleDot"></div>
+                                Build Console
+                            </div>
+                            <div class="console-actions">
+                                <button class="btn btn-sm" id="btnCopyAll">📋 Copy All</button>
+                                <button class="btn btn-sm" id="btnClearConsole">Clear</button>
+                                <button class="btn btn-sm" id="btnExportLog">📄 Export Log</button>
+                            </div>
+                        </div>
+                        <div class="console-body" id="consoleBody"></div>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn btn-danger" id="btnCancelBuild">✕ Cancel Build</button>
+                    </div>
+                </div>
+
+                <!-- OUTPUT SCREEN -->
+                <div class="screen" id="screen-output">
+                    <div class="output-header" id="outputHeader">
+                        <div class="output-success-icon" id="outputIcon">✓</div>
+                        <h2 id="outputTitle">Build Successful!</h2>
+                        <p id="outputSubtitle">Your application has been built and is ready.</p>
+                    </div>
+
+                    <div class="output-cards" id="outputCards"></div>
+
+                    <div class="build-actions">
+                        <button class="btn" id="btnOutputHome">🏠 Home</button>
+                        <button class="btn" id="btnOutputHistory">📋 View History</button>
+                        <button class="btn btn-primary" id="btnNewBuild">🔨 New Build</button>
+                    </div>
+                </div>
+
+                <!-- HISTORY SCREEN -->
+                <div class="screen" id="screen-history">
+                    <div class="detection-header">
+                        <h2>Build History</h2>
+                        <p>View and manage your previous builds.</p>
+                    </div>
+                    <div class="section-header">
+                        <div></div>
+                        <button class="btn btn-sm btn-danger" id="btnClearHistory">🗑️ Clear All</button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state" id="emptyHistory">
+                            <p>No build history yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS SCREEN -->
+                <div class="screen" id="screen-settings">
+                    <div class="detection-header">
+                        <h2>Settings</h2>
+                        <p>Configure Universal App Builder preferences.</p>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎨 Appearance</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Theme</div>
+                                <div class="setting-description">Choose between dark and light mode</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select" id="settingTheme">
+                                    <option value="dark">Dark</option>
+                                    <option value="light">Light</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Language</div>
+                                <div class="setting-description">Interface language</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select" id="settingLanguage">
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="hi">Hindi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📂 Build</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Default Build Folder</div>
+                                <div class="setting-description">Where compiled outputs are saved</div>
+                            </div>
+                            <div class="setting-control">
+                                <input class="setting-input" type="text" id="settingOutputFolder" />
+                                <button class="btn btn-sm" id="btnBrowseOutputFolder">Browse</button>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Parallel Builds</div>
+                                <div class="setting-description">Number of simultaneous build processes</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select" id="settingParallel">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Preferred Package Manager</div>
+                                <div class="setting-description">Default package manager for Node.js projects</div>
+                            </div>
+                            <div class="setting-control">
+                                <select class="setting-select" id="settingPkgManager">
+                                    <option value="auto">Auto-detect</option>
+                                    <option value="npm">npm</option>
+                                    <option value="yarn">yarn</option>
+                                    <option value="pnpm">pnpm</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Auto-clean Temporary Files</div>
+                                <div class="setting-description">Remove temp files after build completion</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch active" id="settingAutoClean"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔔 Notifications</h3>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Build Notifications</div>
+                                <div class="setting-description">Get notified when builds complete or fail</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch active" id="settingNotifications"></div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Sound Effects</div>
+                                <div class="setting-description">Play sounds for build events</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" id="settingSounds"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📦 SDK Manager</h3>
+                        <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">
+                            Universal App Builder can automatically detect, download, and manage required SDKs.
+                            No need to install them system-wide — they'll be managed within the app and used automatically during builds.
+                        </p>
+                        <div id="sdkManagerList" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                                <div class="spinner" style="margin: 0 auto 12px;"></div>
+                                <p>Checking SDK status...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

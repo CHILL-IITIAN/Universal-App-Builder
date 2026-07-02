@@ -1,0 +1,7 @@
+name: no_platforms_app
+description: Flutter app with no platform folders
+version: 1.0.0
+
+dependencies:
+  flutter:
+    sdk: flutter

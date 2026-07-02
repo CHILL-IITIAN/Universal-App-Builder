@@ -1,0 +1,29 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "SecureVault",
+    "version": "1.5.0"
+  },
+  "tauri": {
+    "allowlist": { "all": false },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.securevault.app",
+      "icon": ["icons/icon.png"]
+    },
+    "security": { "csp": null },
+    "windows": [{
+      "fullscreen": false,
+      "resizable": true,
+      "title": "SecureVault",
+      "width": 1000,
+      "height": 700
+    }]
+  }
+}

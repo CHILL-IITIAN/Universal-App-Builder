@@ -1,0 +1,15 @@
+apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
+
+android {
+    namespace "com.fitapp"
+    compileSdkVersion 34
+
+    defaultConfig {
+        applicationId "com.fitapp"
+        minSdkVersion 21
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.2.0"
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "circular-deps",
+  "version": "1.0.0",
+  "description": "Project with circular dependencies",
+  "main": "index.js",
+  "dependencies": {
+    "electron": "^28.0.0",
+    "package-a": "file:./package-a",
+    "package-b": "file:./package-b"
+  }
+}
